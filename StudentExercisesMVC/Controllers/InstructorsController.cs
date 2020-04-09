@@ -75,15 +75,34 @@ namespace StudentExercisesMVC.Controllers
         // POST: Instructors/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Instructor instructor)
         {
             try
             {
-                // TODO: Add insert logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"INSERT INTO Instructor (FirstName, LastName, SlackHandle, Specialty, CohortId)
+                                            OUTPUT INSERTED.Id
+                                            VALUES (@firstName, @lastName, @slackHandle, @specialty, @cohortId";
 
-                return RedirectToAction(nameof(Index));
+                        cmd.Parameters.Add(new SqlParameter("@firstName", instructor.FirstName));
+                        cmd.Parameters.Add(new SqlParameter("@lastName", instructor.LastName));
+                        cmd.Parameters.Add(new SqlParameter("@slackHandle", instructor.SlackHandle));
+                        cmd.Parameters.Add(new SqlParameter("@specialty", instructor.Specialty));
+                        cmd.Parameters.Add(new SqlParameter("@cohortId", instructor.CohortId));
+
+                        var id = (int)cmd.ExecuteScalar();
+                        instructor.Id = id;
+
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+
             }
-            catch
+            catch (Exception ex)
             {
                 return View();
             }
@@ -138,21 +157,32 @@ namespace StudentExercisesMVC.Controllers
         // GET: Instructors/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            var instructor = GetInstructorById(id);
+            return View(instructor);
         }
 
         // POST: Instructors/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult DeleteInstructor(int id)
         {
             try
             {
-                // TODO: Add delete logic here
+                using (SqlConnection conn = Connection) 
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "DELETE FROM Instructor WHERE Id = @id";
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
 
-                return RedirectToAction(nameof(Index));
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                    return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
                 return View();
             }
