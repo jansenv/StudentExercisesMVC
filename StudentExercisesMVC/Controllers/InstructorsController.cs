@@ -92,17 +92,40 @@ namespace StudentExercisesMVC.Controllers
         // GET: Instructors/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            var instructor = GetInstructorById(id);
+            return View(instructor);
         }
 
         // POST: Instructors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, Instructor instructor)
         {
             try
             {
-                // TODO: Add update logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"UPDATE Instructor
+                                                SET FirstName = @firstName,
+                                                    LastName = @lastName,
+                                                    SlackHandle = @slackHandle,
+                                                    Specialty = @specialty,
+                                                    CohortId = @cohortId
+                                                WHERE Id = @id";
+
+                        cmd.Parameters.Add(new SqlParameter("@firstName", instructor.FirstName));
+                        cmd.Parameters.Add(new SqlParameter("@lastName", instructor.LastName));
+                        cmd.Parameters.Add(new SqlParameter("@slackHandle", instructor.SlackHandle));
+                        cmd.Parameters.Add(new SqlParameter("@specialty", instructor.Specialty));
+                        cmd.Parameters.Add(new SqlParameter("@cohortId", instructor.CohortId));
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                        var rowsAffected = cmd.ExecuteNonQuery();
+                    }
+                }
 
                 return RedirectToAction(nameof(Index));
             }
