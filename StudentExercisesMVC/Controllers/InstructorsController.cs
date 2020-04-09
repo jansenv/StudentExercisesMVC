@@ -86,7 +86,7 @@ namespace StudentExercisesMVC.Controllers
                     {
                         cmd.CommandText = @"INSERT INTO Instructor (FirstName, LastName, SlackHandle, Specialty, CohortId)
                                             OUTPUT INSERTED.Id
-                                            VALUES (@firstName, @lastName, @slackHandle, @specialty, @cohortId";
+                                            VALUES (@firstName, @lastName, @slackHandle, @specialty, @cohortId)";
 
                         cmd.Parameters.Add(new SqlParameter("@firstName", instructor.FirstName));
                         cmd.Parameters.Add(new SqlParameter("@lastName", instructor.LastName));
@@ -164,7 +164,7 @@ namespace StudentExercisesMVC.Controllers
         // POST: Instructors/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteInstructor(int id)
+        public ActionResult Delete(int id, Instructor instructor)
         {
             try
             {

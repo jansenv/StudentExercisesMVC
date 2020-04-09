@@ -160,7 +160,7 @@ namespace StudentExercisesMVC.Controllers
         // POST: Students/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteStudent(int id)
+        public ActionResult Delete(int id, Student student)
         {
             try
             {
