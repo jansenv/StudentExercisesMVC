@@ -62,7 +62,8 @@ namespace StudentExercisesMVC.Controllers
         // GET: Instructors/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            var instructor = GetInstructorById(id);
+            return View(instructor);
         }
 
         // GET: Instructors/Create
@@ -131,6 +132,39 @@ namespace StudentExercisesMVC.Controllers
             catch
             {
                 return View();
+            }
+        }
+
+        private Instructor GetInstructorById(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id, FirstName, LastName, SlackHandle, Specialty, CohortId FROM Instructor WHERE Id = @id";
+
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                    var reader = cmd.ExecuteReader();
+                    Instructor instructor = null;
+
+                    if (reader.Read())
+                    {
+                        instructor = new Instructor()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                            SlackHandle = reader.GetString(reader.GetOrdinal("SlackHandle")),
+                            Specialty = reader.GetString(reader.GetOrdinal("Specialty")),
+                            CohortId = reader.GetInt32(reader.GetOrdinal("CohortId"))
+                        };
+
+                    }
+                    reader.Close();
+                    return instructor;
+                }
             }
         }
     }
